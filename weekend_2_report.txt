@@ -1,0 +1,245 @@
+We ran in hardhat environmnet, code is attached at the bottom. Goerli was congested, did not have enough Geth to transact, Sepolia was giving us problems
+
+
+
+output1: 
+The balance of the 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 is 10000000000000000000000 WEI
+[ 'Chocolate', 'Vanilla', 'Strawberry' ]
+Deploying Ballot contract
+Proposals: 
+Proposal N. 1: Chocolate
+Proposal N. 2: Vanilla
+Proposal N. 3: Strawberry
+The ballot contract was deployed at 0x5FbDB2315678afecb367f032d93F642f64180aa3 at block 1
+The chairperson of this contract is 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Giving right to vote to address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+The transaction hash is 0x940de70c27c06d42098a918c102fb1116d6a9d518313b8b81914cec8dba06a4c included at block 2
+Delegating Vote to addresss: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+The transaction hash is 0x0462b602c508b50df92cab6e667aff3519aa431e01e0a708a1593ba39ce445b4 included at block 3
+Casting vote for proposal number: 1
+The transaction hash is 0x309ff1a5f482614dc0407f9a0f6374f8522eec0e909abfc4d5541296d7f59047 included at block 4
+Winner: Vanilla
+
+
+
+Transactions:
+
+Give Right to Vote to Wallet 2: 0x940de70c27c06d42098a918c102fb1116d6a9d518313b8b81914cec8dba06a4c successful
+Delegate Vote from 1 to 2: 0x0462b602c508b50df92cab6e667aff3519aa431e01e0a708a1593ba39ce445b4 successful
+Wallet 2 Cast Vote on Proposal 1: 0x309ff1a5f482614dc0407f9a0f6374f8522eec0e909abfc4d5541296d7f59047 successful 
+
+
+output2:
+The balance of the 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 is 10000000000000000000000 WEI
+[ 'Chocolate', 'Vanilla', 'Strawberry' ]
+Deploying Ballot contract
+Proposals: 
+Proposal N. 1: Chocolate
+Proposal N. 2: Vanilla
+Proposal N. 3: Strawberry
+The ballot contract was deployed at 0x5FbDB2315678afecb367f032d93F642f64180aa3 at block 1
+The chairperson of this contract is 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+Giving right to vote to address 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+The transaction hash is 0x940de70c27c06d42098a918c102fb1116d6a9d518313b8b81914cec8dba06a4c included at block 2
+Casting vote for proposal number: 1
+The transaction hash is 0x8bfba6cd7af07895ead99ddc9ed632148bd79044777ae0db809bba6acf0a722a included at block 3
+Delegating Vote to addresss: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+SolidityError: VM Exception while processing transaction: reverted with reason string 'You already voted.'
+    at Ballot.delegate (contracts/Ballot.sol:79)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+    at runNextTicks (node:internal/process/task_queues:65:3)
+    at listOnTimeout (node:internal/timers:528:9)
+    at processTimers (node:internal/timers:502:7)
+    at async HardhatNode._mineBlockWithPendingTxs (/Users/voaas/VOaaS/encode/lesson5/project/node_modules/hardhat/src/internal/hardhat-network/provider/node.ts:1840:23)
+    at async HardhatNode.mineBlock (/Users/voaas/VOaaS/encode/lesson5/project/node_modules/hardhat/src/internal/hardhat-network/provider/node.ts:517:16)
+    at async EthModule._sendTransactionAndReturnHash (/Users/voaas/VOaaS/encode/lesson5/project/node_modules/hardhat/src/internal/hardhat-network/provider/modules/eth.ts:1532:18) {
+  stackTrace: [
+    {
+      type: 4,
+      sourceReference: [Object],
+      message: [ReturnData],
+      isInvalidOpcodeError: false
+    }
+  ],
+  data: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000012596f7520616c726561647920766f7465642e0000000000000000000000000000',
+  transactionHash: '0xa1d24d37d2547c6311f1d1d427aaef43a63b0c400d9b16e87982fb1249abd17a'
+}
+
+Transactions:
+
+Give Right to Vote to Wallet 2: 0x940de70c27c06d42098a918c102fb1116d6a9d518313b8b81914cec8dba06a4c  successful
+Wallet 1 Cast Vote Proposal 1: 0x8bfba6cd7af07895ead99ddc9ed632148bd79044777ae0db809bba6acf0a722a  successful
+Wallet 1 delegate to Wallet 2:'0xa1d24d37d2547c6311f1d1d427aaef43a63b0c400d9b16e87982fb1249abd17a' reverted since wallet 1 already voted
+
+
+
+//scripts/ballot.ts
+// import { ethers } from "ethers";
+import { ethers } from "hardhat";
+import { Ballot__factory,Ballot } from "../typechain-types";
+import * as dotenv from 'dotenv';
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+dotenv.config();
+
+// const PROPOSALS = ["Proposal 1", "Proposal 2", "Proposal 3"];
+const ADDRESS = "0x3836bF8F3762820F95CBab66Fa462550E0F8d99c";
+
+
+async function giveRightToVote(signer:SignerWithAddress, walletAddress: string, contract: Ballot){
+  const connectedContract = contract.connect(signer);
+  console.log(`Giving right to vote to address ${walletAddress}`);
+  const giveRightToVote = await connectedContract?.giveRightToVote(walletAddress);
+  const giveRightToVoteTx = await giveRightToVote.wait();
+  console.log(
+    `The transaction hash is ${giveRightToVoteTx.transactionHash} included at block ${giveRightToVoteTx.blockNumber}`
+  );
+
+}
+async function castVote(signer:SignerWithAddress, contract: Ballot, proposal:number){
+  console.log(`Casting vote for proposal number: ${proposal}`)
+  const connectedContract = contract.connect(signer);
+  const castVote = await connectedContract?.vote(proposal);
+  const castVoteTx = await castVote.wait();
+  console.log(
+    `The transaction hash is ${castVoteTx.transactionHash} included at block ${castVoteTx.blockNumber}`
+  );
+}
+
+async function delegateVote(signer:SignerWithAddress,walletAddress: string, contract: Ballot){
+  console.log(`Delegating Vote to addresss: ${walletAddress}`)
+  const connectedContract = contract.connect(signer);
+  const delegateVote = await contract?.delegate(walletAddress);
+  const delegateVoteTx = await delegateVote.wait();
+  console.log(
+    `The transaction hash is ${delegateVoteTx.transactionHash} included at block ${delegateVoteTx.blockNumber}`
+  );
+  
+}
+async function queryResult(contract:Ballot){
+  const winnerName = await contract.winnerName()
+  const formattedName = ethers.utils.parseBytes32String(winnerName)
+  console.log(`Winner: ${formattedName}`)
+}
+
+
+async function test1(){
+  const etherSigners = await ethers.getSigners();
+  const signer = etherSigners[0];
+  const signer2 =etherSigners[1];
+
+//  have to connect to correct provider in class it was
+//  alchemy
+//
+
+//TODO
+  // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "");
+  // console.log(`Address: ${wallet.address}`);
+  // const provider = new ethers.providers.AlchemyProvider("sepolia",process.env.ALCHEMY_API_KEY)
+
+  // const lastBlock = await provider.getBlock("latest");
+  // console.log(`Last block: ${lastBlock.number}`);
+
+  // const signer = wallet.connect(provider);
+
+  const balance = await signer.getBalance();
+  console.log(`The balance of the ${signer.address} is ${balance} WEI`);
+
+  const proposals = process.argv.slice(2);
+  console.log(proposals);
+  console.log("Deploying Ballot contract");
+  console.log("Proposals: ");
+  proposals.forEach((element, index) => {
+    console.log(`Proposal N. ${index + 1}: ${element}`);
+  });
+  // TODO
+  const ballotFactory = await ethers.getContractFactory("Ballot");
+  // const ballotFactory = new Ballot__factory(signer);
+  const ballotContract = await ballotFactory.deploy(
+    proposals.map(ethers.utils.formatBytes32String)
+  );
+  const deployTx = await ballotContract.deployTransaction.wait();
+  console.log(
+    `The ballot contract was deployed at ${ballotContract.address} at block ${deployTx.blockNumber}`
+  );
+  const chairperson = await ballotContract.chairperson();
+  console.log(
+    `The chairperson of this contract is ${chairperson}`
+  );
+
+
+  let signer2address = await signer2.getAddress();
+  
+  await giveRightToVote(signer,signer2address,ballotContract);
+
+  await delegateVote(signer,signer2address,ballotContract);
+  await castVote(signer2,ballotContract,1);
+
+  await queryResult(ballotContract);
+
+}
+async function test2(){
+  const etherSigners = await ethers.getSigners();
+  const signer = etherSigners[0];
+  const signer2 =etherSigners[1];
+
+//  have to connect to correct provider in class it was
+//  alchemy
+//
+
+//TODO
+  // const wallet = new ethers.Wallet(process.env.PRIVATE_KEY ?? "");
+  // console.log(`Address: ${wallet.address}`);
+  // const provider = new ethers.providers.AlchemyProvider("sepolia",process.env.ALCHEMY_API_KEY)
+
+  // const lastBlock = await provider.getBlock("latest");
+  // console.log(`Last block: ${lastBlock.number}`);
+
+  // const signer = wallet.connect(provider);
+
+  const balance = await signer.getBalance();
+  console.log(`The balance of the ${signer.address} is ${balance} WEI`);
+
+  const proposals = process.argv.slice(2);
+  console.log(proposals);
+  console.log("Deploying Ballot contract");
+  console.log("Proposals: ");
+  proposals.forEach((element, index) => {
+    console.log(`Proposal N. ${index + 1}: ${element}`);
+  });
+  // TODO
+  const ballotFactory = await ethers.getContractFactory("Ballot");
+  // const ballotFactory = new Ballot__factory(signer);
+  const ballotContract = await ballotFactory.deploy(
+    proposals.map(ethers.utils.formatBytes32String)
+  );
+  const deployTx = await ballotContract.deployTransaction.wait();
+  console.log(
+    `The ballot contract was deployed at ${ballotContract.address} at block ${deployTx.blockNumber}`
+  );
+  const chairperson = await ballotContract.chairperson();
+  console.log(
+    `The chairperson of this contract is ${chairperson}`
+  );
+
+
+  let signer2address = await signer2.getAddress();
+  
+  await giveRightToVote(signer,signer2address,ballotContract);
+  await castVote(signer,ballotContract,1);
+
+  await delegateVote(signer,signer2address,ballotContract);
+
+}
+
+async function main() {
+  // ethers.getSigners() only works with hardhat
+  // test1();
+  test2();
+ 
+}
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
