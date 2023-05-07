@@ -33,7 +33,7 @@ async function castVote(signer:SignerWithAddress, contract: Ballot, proposal:num
 async function delegateVote(signer:SignerWithAddress,walletAddress: string, contract: Ballot){
   console.log(`Delegating Vote to addresss: ${walletAddress}`)
   const connectedContract = contract.connect(signer);
-  const delegateVote = await contract?.delegate(walletAddress);
+  const delegateVote = await connectedContract?.delegate(walletAddress);
   const delegateVoteTx = await delegateVote.wait();
   console.log(
     `The transaction hash is ${delegateVoteTx.transactionHash} included at block ${delegateVoteTx.blockNumber}`
